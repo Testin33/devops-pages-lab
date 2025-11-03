@@ -1,0 +1,32 @@
+name: Activity Log → README
+
+on:
+  workflow_dispatch:        # lo puedes lanzar manualmente
+  push:
+    branches: [main]
+  schedule:
+    - cron: "13 3,15 * * *" # 2× al día (UTC)
+
+permissions:
+  contents: write
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Ensure placeholders exist
+        run: |
+          grep -q "<!--START_SECTION:activity-->" README.md
+          grep -q "<!--END_SECTION:activity-->" README.md
+
+      - name: Update README with recent activity
+        uses: TheDanniCraft/activity-log@v1
+        with:
+          GITHUB_USERNAME: "testin33"              # <--- tu usuario
+          GITHUB_TOKEN: ${{ secrets.TOKEN }}
+          EVENT_LIMIT: 10
+          OUTPUT_STYLE: MARKDOWN
+          IGNORE_EVENTS: '["ForkEvent"]'
+          COMMIT_MESSAGE: "docs: update README with latest activity"
